@@ -1,0 +1,8 @@
+﻿{
+	"baseSitePath": "./site", 
+	"dynamicHandlers": ["api"],
+	"fileHandlers": ["staticFile"],
+	"cacheStaticFiles": 60,
+	"tcpPort": 8222,
+	"tcpHostName": "localhost"
+}

@@ -1,0 +1,10 @@
+{
+  "_name": "knockProxy",
+  "description": "tcp proxy, opens hole after authorization",
+  "private": true,
+  "dependencies": {
+    "node.extend": "^1.0",
+	"mime":"^1.3",
+	"log4js":"^0.6"
+  }
+}

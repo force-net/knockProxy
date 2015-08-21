@@ -1,0 +1,58 @@
+﻿<html>
+	<head>
+		<title>knockProxy</title>
+		<style>
+			html
+			{
+				overflow-y: scroll;
+			}
+			body, button, input {
+				margin: auto auto;
+				padding: 0;
+				max-width: 960px;
+				font-family: 'Segoe UI', 'Tahoma';
+				/*height: 100%;*/
+			}
+			h1,h2,h3 {
+				font-family: 'Segoe UI Light';
+			}
+			button {
+				background: darkslateblue;
+				color: white;
+				border: 0;
+				padding: 5px 10px 5px 10px;
+				box-shadow: 2px 2px darkgray;
+				outline: 0;
+			}
+			button:active {
+				box-shadow: none;
+				margin-left: 1px;
+				margin-top: 1px;
+			}
+			input[type="text"],input[type="password"] {
+				padding: 3px;
+			}
+		</style>
+		<script src="scripts/jquery-2.1.1.min.js"></script>
+		<script src="scripts/sha256.js"></script>
+		<script src="scripts/main.js"></script>
+	</head>
+	<body>
+		<div style="margin: 30px;">
+			<div style="width: 100%;">
+				<div id="divWrongPassword" style="color: darkred;display: none">Неверный логин или пароль</div>
+				<div id="divSuccess" style="color: green;display: none">Созданный для вас биндинг: <span id="spBinding"></span></div>
+				<div style="width: auto">
+					<div>
+						<span style="display: inline-block;width: 120px">Логин:</span> <input type="text" id="tbLogin"/>
+					</div>
+					<div>
+						<span style="display: inline-block;width: 120px">Пароль:</span> <input type="password" id="tbPassword"/>
+					</div>
+					
+					<button id="btnLogin" style="">Войти</button>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

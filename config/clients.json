@@ -1,0 +1,7 @@
+﻿[
+	{
+		"login": "sample",
+		"password": "sample",
+		"target": "192.168.16.1:3389"
+	}
+]

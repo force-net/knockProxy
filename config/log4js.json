@@ -1,0 +1,28 @@
+﻿{
+	"appenders": [
+	{
+		"type": "file",
+		"filename": "./server_log/server.log",
+		"maxLogSize": 10240000,
+		"backups": 10,
+		"layout": 
+		{
+			"type": "pattern",
+			"pattern": "[%d{yyyy-MM-dd hh:mm:ss}] [%p] %m"
+		},
+		"category": "server"
+	},
+	{
+		"type": "console",
+		"level": "info",
+		"layout": 
+		{
+			"type": "colored"
+		},
+		"category": "server"
+    }  ],
+	"levels": {
+		"[all]": "info",
+		"logRequest": "debug"
+	}
+}
