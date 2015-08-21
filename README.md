@@ -1,8 +1,8 @@
 # knockProxy
-Ssimple TCP port forwarder with authorization
+Simple TCP port forwarder with authorization
 
 ## Description
-Main problem, which solves this module is TCP proxy forwarder with additional authorization to prevent possible insecure access to some services.
+Main problem, which solves this module, is TCP proxy forwarder with additional authorization to prevent possible insecure access to some services.
 Usual services, which can protect this module is RDP, VNC, SSH, or something similar. If you don't want to open ports of these services to internet (to protect it from password brute force or possible security issues), you can use this module.
 Also, it can be useful to map RDP services in corporate network with NAT through one public server.
 This solution usually is simplier than VPN, IPSec or SSH tunnelling and can be used for unskilled users. Also, you can modify http page and include detailed instructions.
