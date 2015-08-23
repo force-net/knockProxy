@@ -10,6 +10,18 @@ var logger = require('./logHelper.js').getLogger('binder');
 
 var clientSalts = {};
 
+var clients = [];
+var readConfigOptions = { muteErrors: true, rereadOnlyIfChanged: true, returnNullInCaseError: true };
+var refreshClients = function() {
+	var newClients = configReader('clients', [], readConfigOptions);
+	if (newClients != null) {
+		clients = newClients;
+		logger.info('Known client list is updated');
+	} else {
+		logger.error('Known client list is not updated (error in config?)');
+	}
+};
+
 var getBinding = function (remoteIp) {
 	var found = null;
 	var now = new Date();
@@ -45,9 +57,9 @@ var calcHash = function(p, s) {
 	var hash = crypto.createHash('sha256');
 	hash.update(r);
 	return hash.digest('hex');
-}
+};
 
-var checkClientAndMakeBinding = function(data, remoteIp) {
+var checkClientAndMakeBinding = function(data, remoteIp, localIp) {
 	var isSuccess = false;
 	var storedSalt = clientSalts[remoteIp];
 	delete clientSalts[remoteIp];
@@ -55,6 +67,8 @@ var checkClientAndMakeBinding = function(data, remoteIp) {
 
 	if (data.salt != storedSalt)
 		return null;
+
+	refreshClients();
 
 	clients.forEach(function(c) {
 		if (c.login == data.login) {
@@ -70,7 +84,7 @@ var checkClientAndMakeBinding = function(data, remoteIp) {
 
 	if (isSuccess) {
 		logger.info('Created binding for ' + remoteIp + ', ' + data.login);
-		return serverConfig.tcpHostName + ':' + serverConfig.tcpPort;
+		return (serverConfig.tcpDisplayHost || localIp) + ':' + serverConfig.tcpPort;
 	} else {
 		logger.info('Invalid login/password for ' + remoteIp + ', ' + data.login);
 		return null;
@@ -79,7 +93,7 @@ var checkClientAndMakeBinding = function(data, remoteIp) {
 
 var makeBinding = function (login, remoteIp, target) {
 	// removing old bindings
-	bindings = bindings.filter(function(e) { return e.login != login });
+	bindings = bindings.filter(function (e) { return e.login != login; });
 	bindings.push({ ip: remoteIp, date: new Date(), connectionCount: 0, target: target });
 };
 
@@ -93,4 +107,4 @@ module.exports = {
 	getBinding: getBinding,
 	checkClientAndMakeBinding: checkClientAndMakeBinding,
 	getSalt: getSalt
-}
+};

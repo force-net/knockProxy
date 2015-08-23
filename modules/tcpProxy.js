@@ -32,7 +32,7 @@ var server = net.createServer(function (remoteClient) { //'connection' listener
 
 
 var startServer = function() {
-	server.listen(serverConfig.tcpPort, function () {});
+	server.listen(serverConfig.tcpPort, serverConfig.tcpHost, function () {});
 };
 
 var stopServer = function() {
@@ -42,4 +42,4 @@ var stopServer = function() {
 module.exports = {
 	start: startServer,
 	stop: stopServer
-}
+};

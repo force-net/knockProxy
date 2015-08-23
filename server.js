@@ -4,7 +4,7 @@ var configReader = require('./modules/configReader.js');
 var logHelper = require('./modules/logHelper.js');
 var logger = logHelper.getLogger('server');
 
-var serverConfig = configReader('listen', { port: 8221 });
+var serverConfig = configReader('server', { httpPort: 8221 });
 var http = require('http');
 var requestProcessor = require('./modules/requestProcessor.js');
 
@@ -12,9 +12,10 @@ require('./modules/tcpProxy.js').start();
 
 var server = http.createServer(requestProcessor.create());
 
-var port = serverConfig.port;
-var listeningMessage = 'http://' + (serverConfig.host || '*') + ':' + port + '/';
-var host = serverConfig.host;
+var port = serverConfig.httpPort;
+var host = serverConfig.httpHost;
+var listeningMessage = 'http://' + (host || '*') + ':' + port + '/';
+
 var doChmod = false;
 
 if (port == 'iis') {

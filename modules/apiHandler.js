@@ -17,7 +17,7 @@ var processRequest = function (query, request, response) {
 	}
 	
 	if (postData.action == 'login') {
-		var result = clientBinder.checkClientAndMakeBinding(postData, request.connection.remoteAddress);
+		var result = clientBinder.checkClientAndMakeBinding(postData, request.connection.remoteAddress, request.socket.localAddress);
 		response.writeHead(200, { 'Content-Type': 'application/json' });
 		response.write(JSON.stringify({ isSuccess: result != null, binding: result }));
 		response.end();

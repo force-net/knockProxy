@@ -20,24 +20,16 @@ var config = configReader('server', {
 
 module.exports.create = function () {
 	
-	var dynamicEngines = config.dynamicHandlers.map(function (e) { return require('./' + e + 'Handler.js'); });
-	var physicalEngines = config.fileHandlers.map(function (e) { return require('./' + e + 'Handler.js'); });
+	var dynamicEngines = [require('./apiHandler.js')];
+	var physicalEngines = [require('./staticFileHandler.js')];
 	var defaultIndexPages = config.defaultIndexPageNames;
 	var defaultExtensions = config.defaultIndexPageExtensions;
 	var forbiddenPathPattern = config.forbiddenPathPattern;
 	var baseSitePath = config.baseSitePath;
 
-	var addedExtensions = [];
-	var forbiddenPhysicalPatterns = [];
-	physicalEngines.forEach(function(e) {
-		if (e.getExtensionsForDefaultPages) addedExtensions = addedExtensions.concat(e.getExtensionsForDefaultPages());
-		if (e.getForbiddenPattern) forbiddenPhysicalPatterns.push(new RegExp(e.getForbiddenPattern()));
-	});
-
-	addedExtensions = addedExtensions.concat(defaultExtensions);
 	var groupedIndexPages = [];
 	defaultIndexPages.forEach(function(a1) {
-		addedExtensions.forEach(function(a2) {
+		defaultExtensions.forEach(function (a2) {
 			groupedIndexPages.push(a1 + a2);
 		});
 	});
@@ -61,7 +53,7 @@ module.exports.create = function () {
 
 		// /someurl/ -> someurl.html
 		if (path != pathB) {
-			addedExtensions.some(function (p) {
+			defaultExtensions.some(function (p) {
 				var p2 = pathB + p;
 				if (fs.existsSync(p2)) {
 					validPage = p2;
@@ -89,12 +81,6 @@ module.exports.create = function () {
 		}
 		
 		if (new RegExp(forbiddenPathPattern).test(urlPath)) {
-			callback(null);
-			return;
-		}
-
-		// template files
-		if (forbiddenPhysicalPatterns.some(function (e) { return e.test(urlPath); })) {
 			callback(null);
 			return;
 		}
