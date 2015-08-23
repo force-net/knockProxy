@@ -8,6 +8,8 @@ var bindings = [];
 
 var logger = require('./logHelper.js').getLogger('binder');
 
+var clientSalts = {};
+
 var getBinding = function (remoteIp) {
 	var found = null;
 	var now = new Date();
@@ -47,6 +49,13 @@ var calcHash = function(p, s) {
 
 var checkClientAndMakeBinding = function(data, remoteIp) {
 	var isSuccess = false;
+	var storedSalt = clientSalts[remoteIp];
+	delete clientSalts[remoteIp];
+	
+
+	if (data.salt != storedSalt)
+		return null;
+
 	clients.forEach(function(c) {
 		if (c.login == data.login) {
 			if ((data.password || '').toString().toLowerCase() == calcHash(c.password, data.salt).toLowerCase()) {
@@ -74,9 +83,11 @@ var makeBinding = function (login, remoteIp, target) {
 	bindings.push({ ip: remoteIp, date: new Date(), connectionCount: 0, target: target });
 };
 
-var getSalt = function() {
-	return crypto.pseudoRandomBytes(15).toString('base64');
-}
+var getSalt = function(remoteIp) {
+	var salt = crypto.pseudoRandomBytes(15).toString('base64');
+	clientSalts[remoteIp] = salt;
+	return salt;
+};
 
 module.exports = {
 	getBinding: getBinding,

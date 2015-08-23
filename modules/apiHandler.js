@@ -24,7 +24,7 @@ var processRequest = function (query, request, response) {
 	}
 	
 	if (postData.action == 'salt') {
-		var salt = clientBinder.getSalt();
+		var salt = clientBinder.getSalt(request.connection.remoteAddress);
 		response.writeHead(200, { 'Content-Type': 'application/json' });
 		response.write(JSON.stringify({ salt: salt }));
 		response.end();

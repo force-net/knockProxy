@@ -42,8 +42,6 @@ module.exports.create = function () {
 		});
 	});
 	
-	console.log(groupedIndexPages)
-
 	var findExistingDirLikeFile = function(path) {
 		var pathB = path == '/' ? path : path.substring(0, path.length - 1); // removing trailing slash
 
