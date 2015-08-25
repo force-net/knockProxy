@@ -11,12 +11,14 @@ var logger = require('./logHelper.js').getLogger('binder');
 var clientSalts = {};
 
 var clients = [];
-var readConfigOptions = { muteErrors: true, rereadOnlyIfChanged: true, returnNullInCaseError: true };
-var refreshClients = function() {
+var readConfigOptions = { muteErrors: true, rereadOnlyIfChanged: true, returnNullInCaseError: true, defaultIfNotReread: new Object() };
+var refreshClients = function () {
 	var newClients = configReader('clients', [], readConfigOptions);
 	if (newClients != null) {
-		clients = newClients;
-		logger.info('Known client list is updated');
+		if (newClients !== readConfigOptions.defaultIfNotReread) {
+			clients = newClients;
+			logger.info('Known client list is updated');
+		}
 	} else {
 		logger.error('Known client list is not updated (error in config?)');
 	}
@@ -84,7 +86,10 @@ var checkClientAndMakeBinding = function(data, remoteIp, localIp) {
 
 	if (isSuccess) {
 		logger.info('Created binding for ' + remoteIp + ', ' + data.login);
-		return (serverConfig.tcpDisplayHost || localIp) + ':' + serverConfig.tcpPort;
+		return {
+			displayData: (serverConfig.tcpDisplayHost || localIp) + ':' + serverConfig.tcpPort,
+			bindTime: serverConfig.maxBindTime
+		};
 	} else {
 		logger.info('Invalid login/password for ' + remoteIp + ', ' + data.login);
 		return null;

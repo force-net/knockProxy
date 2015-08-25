@@ -6,10 +6,9 @@
 			{
 				overflow-y: scroll;
 			}
-			body, button, input {
+			body, button, input,label {
 				margin: auto auto;
 				padding: 0;
-				max-width: 960px;
 				font-family: 'Segoe UI', 'Tahoma';
 				/*height: 100%;*/
 			}
@@ -17,12 +16,14 @@
 				font-family: 'Segoe UI Light';
 			}
 			button {
-				background: darkslateblue;
+				background: #2982CC;
 				color: white;
 				border: 0;
-				padding: 5px 10px 5px 10px;
+				padding-right: 13px;
+				padding-left: 13px;
 				box-shadow: 2px 2px darkgray;
 				outline: 0;
+				height: 31px;
 			}
 			button:active {
 				box-shadow: none;
@@ -30,7 +31,30 @@
 				margin-top: 1px;
 			}
 			input[type="text"],input[type="password"] {
-				padding: 3px;
+				padding: 5px;
+				width: 80%;
+				display: inline-block;
+				border: 1px solid #2982CC;
+			}
+			 input[type="text"]:focus,input[type="password"]:focus {
+				box-shadow: 0 0 5px #2982CC;
+				/*outline-color: #bf0000;
+				outline-width: 2px;
+				outline-style: solid;
+				outline-offset: -1px;*/
+			}
+
+			.button-div {
+				width: 100%; text-align: right;margin-top: 10px;
+			}
+			label {
+				color: black;
+				text-shadow: 1px 1px white;
+			}
+			.content {
+				background: #f0faff;
+				background-image: repeating-linear-gradient(135deg, transparent, transparent 5px, rgba(255,255,255,.5) 5px, rgba(255,255,255,.5) 10px);
+
 			}
 		</style>
 		<script src="scripts/jquery-1.11.3.min.js"></script>
@@ -39,20 +63,30 @@
 		<script src="scripts/main.js"></script>
 	</head>
 	<body>
-		<div style="margin: 30px;">
-			<div style="width: 100%;">
-				<div id="divWrongPassword" style="color: darkred;display: none">Неверный логин или пароль</div>
-				<div id="divSuccess" style="color: green;display: none">Созданный для вас биндинг: <span id="spBinding"></span></div>
-				<div style="width: auto">
-					<div>
-						<span style="display: inline-block;width: 120px">Логин:</span> <input type="text" id="tbLogin"/>
-					</div>
-					<div>
-						<span style="display: inline-block;width: 120px">Пароль:</span> <input type="password" id="tbPassword"/>
-					</div>
-					
-					<button id="btnLogin" style="">Войти</button>
+		<div style="margin: 0;display: table;width: 100%;height: 100%;">
+			<div style="display: table-cell;vertical-align: middle;text-align: center;" class="content">
+				<div style="width: 500px;margin:auto;">
+					<form>
+						<div id="divExtender">&nbsp;</div>
+						<div id="divWrongPassword" style="color: darkred; display: none">Неверный логин или пароль</div>
+						<div id="divSuccess" style="color: green; display: none">Созданный для вас биндинг: <span id="spBinding"></span> (<span id="spBindingRemain"></span> сек.)</div>
+						<div style="width: auto">
+							<div class="button-div">
+								<label for="tbLogin">Логин:</label>
+								<input type="text" id="tbLogin" />
+							</div>
+							<div class="button-div">
+								<label for="tbPassword">Пароль:</label>
+								<input type="password" id="tbPassword" />
+							</div>
+
+							<div class="button-div" style="height: 40px">
+								<button id="btnLogin">Войти</button>
+							</div>
+						</div>
+					</form>
 				</div>
+				<div style="position: absolute;right: 0;bottom: 0;background: white;width: 100%;text-align: right;padding: 3px;font-style: italic;font-family: 'Consolas'">knockProxy by <b>force</b></div>
 			</div>
 		</div>
 	</body>

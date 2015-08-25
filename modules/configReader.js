@@ -7,8 +7,10 @@ module.exports = function (configName, defaultObject, options) {
 		
 		if (options && options.rereadOnlyIfChanged) {
 			var mtime = fs.statSync(fileName).mtime;
-			if (mtime == options.knownMTime)
-				return null;
+			if (mtime - options.knownMTime === 0) {
+				return options.defaultIfNotReread || null;
+			}
+				
 			options.knownMTime = mtime;
 		}
 

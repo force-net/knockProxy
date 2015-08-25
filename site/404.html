@@ -19,38 +19,44 @@
 				left: 0;
 				right: 0;
 				text-align: center;
+				overflow: hidden;
+			}
+
+			.f {
+				height: 100%;
+				display: inline-block;
 				vertical-align: middle;
-				display: table;
+				width: 1px;
 			}
 
 			.error {
-				display: table-cell;
+				display: inline;
 				vertical-align: middle;
 				font-size: 250px;
 				text-align: center;
-				font-family: 'Segoe UI Light', 'Tahoma';
-				-webkit-animation: ani 0.6s; /* Chrome, Safari, Opera */
-				animation: ani 0.6s;
+				font-family: 'Segoe UI Bold', 'Tahoma';
+				font-weight: bold;
+				-webkit-animation: ani 1s; /* Chrome, Safari, Opera */
+				animation: ani 1s;
 				animation-direction: alternate;
 				-webkit-animation-direction: alternate;
 				animation-iteration-count: infinite;
 				-webkit-animation-iteration-count: infinite;
-				 transform-origin: 50% 50%;
 			}
 
 			@-webkit-keyframes ani
 			{
 				to
 				{
-					transform: scaleX(0.90) scaleY(0.90);
+					color: #500000;
 				}
 			}
 
-			@keyframes ani
+			@keyframes ani1
 			{
 				to
 				{
-					transform: scaleX(0.90) scaleY(0.90)
+					color: #500000;
 				}
 			}
 
@@ -58,7 +64,8 @@
 	</head>
 	<body>
 		<div class="body">
-			<div class="error">404</div>
+			<span class="f"></span>
+			<span class="error">404</span>
 		</div>
 	</body>
 </html>
