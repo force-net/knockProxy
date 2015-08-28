@@ -26,9 +26,18 @@ To solve this problem, you should create secure tunnel and use VPN or client plu
 Authorization currently performed by http, but no plain password is transferred over internet (used salted hash).
 
 ## Requirements for server
-Server should have nodejs and can be Windows or Linux computer
+Server should have nodejs and can be Windows or Linux computer. HTTP part should be located directly to internet (reverse proxy like nginx does not supported due requirement to know client ip).
 
 ## Requrements for client
 Client only need browser for authorization and client program for connection. Client can be desktop computer or mobile, there are no restricions.
 Client can be over NAT, but it should have one public IP during it internet session
+
+## Installation
+
+1. Download program files
+2. Configure ports and binding interfaces
+3. Ensure server_log folder is writable
+4. Add required users to cliens.json config
+4. Run npm install
+5. Run node server.js (or pm2 start server.js, or use other node process manager)
 

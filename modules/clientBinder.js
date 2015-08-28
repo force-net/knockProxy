@@ -48,7 +48,7 @@ var getBinding = function (remoteIp) {
 		found.connectionCount++;
 		var target = found.target;
 		var split = target.split(':');
-		return  { host: split[0], port: split[1] };
+		return  { host: split[0], port: split[1], login: found.login };
 	}
 
 	return null;
@@ -91,7 +91,7 @@ var checkClientAndMakeBinding = function(data, remoteIp, localIp) {
 			bindTime: serverConfig.maxBindTime
 		};
 	} else {
-		logger.info('Invalid login/password for ' + remoteIp + ', ' + data.login);
+		logger.warn('Invalid login/password for ' + remoteIp + ', ' + (data.login || '(empty login)'));
 		return null;
 	}
 };
@@ -99,7 +99,7 @@ var checkClientAndMakeBinding = function(data, remoteIp, localIp) {
 var makeBinding = function (login, remoteIp, target) {
 	// removing old bindings
 	bindings = bindings.filter(function (e) { return e.login != login; });
-	bindings.push({ ip: remoteIp, date: new Date(), connectionCount: 0, target: target });
+	bindings.push({ ip: remoteIp, date: new Date(), connectionCount: 0, target: target, login: login });
 };
 
 var getSalt = function(remoteIp) {

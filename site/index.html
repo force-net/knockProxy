@@ -27,10 +27,14 @@
 				outline: 0;
 				height: 31px;
 			}
-			button:active {
+			button:active,button:active:focus {
 				box-shadow: none;
 				margin-left: 1px;
 				margin-top: 1px;
+			}
+			button:focus {
+				outline: 1px dotted lightblue;
+				outline-offset: -1px;
 			}
 			input[type="text"],input[type="password"] {
 				padding: 5px;
