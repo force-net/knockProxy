@@ -37,7 +37,7 @@
 					return;
 				}
 				var salt = r1.salt;
-				var pass = Sha256.hash($('#tbPassword').val() + salt);
+				var pass = Sha256.hash(Sha256.hash($('#tbPassword').val()) + salt);
 				doRequest({
 					action: 'login',
 					login: $('#tbLogin').val(),

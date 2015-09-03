@@ -3,5 +3,11 @@
 		"login": "sample",
 		"password": "sample",
 		"target": "192.168.16.1:3389"
+	},
+	{
+		"login": "sampleHash",
+		"_realValue": "sample",
+		"passwordHash": "af2bdbe1aa9b6ec1e2ade1d694f41fc71a831d0268e9891562113d8a62add1bf",
+		"target": "192.168.16.1:3389"
 	}
 ]

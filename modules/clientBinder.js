@@ -16,6 +16,10 @@ var refreshClients = function () {
 	var newClients = configReader('clients', [], readConfigOptions);
 	if (newClients != null) {
 		if (newClients !== readConfigOptions.defaultIfNotReread) {
+			newClients.forEach(function(e) {
+				if (e.password && !e.passwordHash)
+					e.passwordHash = calcHash(e.password, '');
+			});
 			clients = newClients;
 			logger.info('Known client list is updated');
 		}
@@ -74,7 +78,7 @@ var checkClientAndMakeBinding = function(data, remoteIp, localIp) {
 
 	clients.forEach(function(c) {
 		if (c.login == data.login) {
-			if ((data.password || '').toString().toLowerCase() == calcHash(c.password, data.salt).toLowerCase()) {
+			if ((data.password || '').toString().toLowerCase() == calcHash(c.passwordHash, data.salt).toLowerCase()) {
 				makeBinding(c.login, remoteIp, c.target);
 				isSuccess = true;
 				return false;
