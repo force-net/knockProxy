@@ -9,5 +9,9 @@
 		"_realValue": "sample",
 		"passwordHash": "af2bdbe1aa9b6ec1e2ade1d694f41fc71a831d0268e9891562113d8a62add1bf",
 		"target": "192.168.16.1:3389"
+	},
+	{
+		"sourceIp": "127.0.0.1",
+		"target": "192.168.16.1:3389"
 	}
 ]

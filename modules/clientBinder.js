@@ -11,6 +11,7 @@ var logger = require('./logHelper.js').getLogger('binder');
 var clientSalts = {};
 
 var clients = [];
+
 var readConfigOptions = { muteErrors: true, rereadOnlyIfChanged: true, returnNullInCaseError: true, defaultIfNotReread: new Object() };
 var refreshClients = function () {
 	var newClients = configReader('clients', [], readConfigOptions);
@@ -19,6 +20,11 @@ var refreshClients = function () {
 			newClients.forEach(function(e) {
 				if (e.password && !e.passwordHash)
 					e.passwordHash = calcHash(e.password, '');
+				if (e.target) {
+					var split = e.target.split(':');
+					e.targetHost = split[0];
+					e.targetPort = split[1];
+				}
 			});
 			clients = newClients;
 			logger.info('Known client list is updated');
@@ -29,7 +35,11 @@ var refreshClients = function () {
 };
 
 var getBinding = function (remoteIp) {
-	var found = null;
+	var clientByIp = clients.first(function (e) { return !e.login && e.sourceIp && e.sourceIp == remoteIp; });
+	if (clientByIp) {
+		return { host: clientByIp.targetHost, port: clientByIp.targetPort, login: clientByIp.sourceIp };
+	}
+
 	var now = new Date();
 	// filtering only valid
 	bindings = bindings.filter(function(b) {
@@ -40,19 +50,11 @@ var getBinding = function (remoteIp) {
 		return true;
 	});
 
-	bindings.forEach(function(b) {
-		if (b.ip == remoteIp) {
-			found = b;
-			return false;
-		}
-		return true;
-	});
-	
+	var found = bindings.first(function(b) { return b.ip == remoteIp; });
+
 	if (found != null) {
 		found.connectionCount++;
-		var target = found.target;
-		var split = target.split(':');
-		return  { host: split[0], port: split[1], login: found.login };
+		return { host: found.client.targetHost, port: found.client.targetPort, login: found.client.login };
 	}
 
 	return null;
@@ -66,29 +68,25 @@ var calcHash = function(p, s) {
 };
 
 var checkClientAndMakeBinding = function(data, remoteIp, localIp) {
-	var isSuccess = false;
 	var storedSalt = clientSalts[remoteIp];
 	delete clientSalts[remoteIp];
-	
 
 	if (data.salt != storedSalt)
 		return null;
 
 	refreshClients();
 
-	clients.forEach(function(c) {
-		if (c.login == data.login) {
+	var client = clients.first(function(c) {
+		if (c.login == data.login && (!c.sourceIp || c.sourceIp == remoteIp)) {
 			if ((data.password || '').toString().toLowerCase() == calcHash(c.passwordHash, data.salt).toLowerCase()) {
-				makeBinding(c.login, remoteIp, c.target);
-				isSuccess = true;
-				return false;
+				return true;
 			}
 		}
-
-		return true;
+		return false;
 	});
-
-	if (isSuccess) {
+	
+	if (client) {
+		makeBinding(remoteIp, client);
 		logger.info('Created binding for ' + remoteIp + ', ' + data.login);
 		return {
 			displayData: (serverConfig.tcpDisplayHost || localIp) + ':' + serverConfig.tcpPort,
@@ -100,10 +98,10 @@ var checkClientAndMakeBinding = function(data, remoteIp, localIp) {
 	}
 };
 
-var makeBinding = function (login, remoteIp, target) {
+var makeBinding = function (remoteIp, client) {
 	// removing old bindings
-	bindings = bindings.filter(function (e) { return e.login != login; });
-	bindings.push({ ip: remoteIp, date: new Date(), connectionCount: 0, target: target, login: login });
+	bindings = bindings.filter(function (e) { return e.login != client.login; });
+	bindings.push({ ip: remoteIp, date: new Date(), connectionCount: 0, client: client });
 };
 
 var getSalt = function(remoteIp) {
@@ -112,8 +110,18 @@ var getSalt = function(remoteIp) {
 	return salt;
 };
 
+refreshClients();
 module.exports = {
 	getBinding: getBinding,
 	checkClientAndMakeBinding: checkClientAndMakeBinding,
 	getSalt: getSalt
 };
+
+if (!Array.prototype.first)
+	Array.prototype.first = function(callback) {
+		for (var i = 0; i < this.length; i++) {
+			if (callback(this[i], i))
+				return this[i];
+		}
+		return null;
+	};

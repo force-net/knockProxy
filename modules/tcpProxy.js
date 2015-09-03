@@ -2,12 +2,14 @@
 var net = require('net');
 var clientBinder = require('./clientBinder.js');
 
-var serverConfig = configReader('server', { tcpPort: 8222 });
+var serverConfig = configReader('server', { tcpPort: 8222, onlyOneConnection: true });
 
 var logger = require('./logHelper.js').getLogger('proxy');
 
 var noop = function() {
 };
+
+var currentConnections = {};
 
 var server = net.createServer(function (remoteClient) { //'connection' listener
 	var remoteIp = remoteClient.remoteAddress;
@@ -28,12 +30,23 @@ var server = net.createServer(function (remoteClient) { //'connection' listener
 		logger.warn('No binding for client: ' + remoteIp);
 		remoteClient.destroy();
 	} else {
-		client = net.createConnection(binding, function() { //'connect' listener
-			logger.info('Created pipe: ' + remoteIp + ' <-> ' + binding.host + ':' + binding.port + logBindingSuffix);
-			client.pipe(remoteClient).pipe(client);
-		});
-		client.on('error', noop);
-		client.on('close', function () { remoteClient.destroy(); logDisconnected(); });
+		if (serverConfig.onlyOneConnection && currentConnections[remoteIp]) {
+			logger.warn('Client already connected. Blocking ' + logBindingSuffix);
+			remoteClient.destroy();
+		} else {
+			currentConnections[remoteIp] = 1;
+
+			client = net.createConnection(binding, function() { //'connect' listener
+				logger.info('Created pipe: ' + remoteIp + ' <-> ' + binding.host + ':' + binding.port + logBindingSuffix);
+				client.pipe(remoteClient).pipe(client);
+			});
+			client.on('error', noop);
+			client.on('close', function () {
+				delete currentConnections[remoteIp];
+				remoteClient.destroy();
+				logDisconnected();
+			});
+		}
 	}
 });
 
