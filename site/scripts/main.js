@@ -53,7 +53,7 @@
 				} else {
 					$('#divWrongPassword').hide();
 					$('#divSuccess').show();
-					$('#spBinding').text(res.binding.displayData);
+					$('#spBinding').text((res.binding.displayHost || document.location.hostname) + ':' + res.binding.displayPort);
 					if (res.binding.bindTime) {
 						var d = new Date();
 						$('#spBindingRemain').text(parseInt(res.binding.bindTime));

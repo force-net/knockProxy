@@ -16,14 +16,15 @@
     <Content Include="modules\requestProcessor.js" />
     <Content Include="server.js" />
     <Content Include="site\404.html" />
+    <Content Include="site\robots.txt" />
+    <Content Include="site\scripts\jquery-1.11.3.min.js" />
+    <Content Include="site\scripts\json2.min.js" />
     <Content Include="site\scripts\main.js" />
-    <Content Include="site\scripts\jquery-2.1.1.min.js" />
     <Content Include="site\index.html" />
     <Content Include="site\scripts\sha256.js" />
   </ItemGroup>
   <ItemGroup>
     <None Include="config\clients.json" />
-    <None Include="config\listen.json" />
     <None Include="config\log4js.json" />
     <None Include="config\server.json" />
   </ItemGroup>

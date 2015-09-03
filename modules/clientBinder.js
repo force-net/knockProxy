@@ -13,13 +13,13 @@ var clientSalts = {};
 var clients = [];
 
 var readConfigOptions = { muteErrors: true, rereadOnlyIfChanged: true, returnNullInCaseError: true, defaultIfNotReread: new Object() };
-var refreshClients = function () {
+var _refreshClients = function () {
 	var newClients = configReader('clients', [], readConfigOptions);
 	if (newClients != null) {
 		if (newClients !== readConfigOptions.defaultIfNotReread) {
 			newClients.forEach(function(e) {
 				if (e.password && !e.passwordHash)
-					e.passwordHash = calcHash(e.password, '');
+					e.passwordHash = _calcHash(e.password, '');
 				if (e.target) {
 					var split = e.target.split(':');
 					e.targetHost = split[0];
@@ -60,13 +60,6 @@ var getBinding = function (remoteIp) {
 	return null;
 };
 
-var calcHash = function(p, s) {
-	var r = p + s;
-	var hash = crypto.createHash('sha256');
-	hash.update(r);
-	return hash.digest('hex');
-};
-
 var checkClientAndMakeBinding = function(data, remoteIp, localIp) {
 	var storedSalt = clientSalts[remoteIp];
 	delete clientSalts[remoteIp];
@@ -74,11 +67,11 @@ var checkClientAndMakeBinding = function(data, remoteIp, localIp) {
 	if (data.salt != storedSalt)
 		return null;
 
-	refreshClients();
+	_refreshClients();
 
 	var client = clients.first(function(c) {
 		if (c.login == data.login && (!c.sourceIp || c.sourceIp == remoteIp)) {
-			if ((data.password || '').toString().toLowerCase() == calcHash(c.passwordHash, data.salt).toLowerCase()) {
+			if ((data.password || '').toString().toLowerCase() == _calcHash(c.passwordHash, data.salt).toLowerCase()) {
 				return true;
 			}
 		}
@@ -86,10 +79,11 @@ var checkClientAndMakeBinding = function(data, remoteIp, localIp) {
 	});
 	
 	if (client) {
-		makeBinding(remoteIp, client);
+		_makeBinding(remoteIp, client);
 		logger.info('Created binding for ' + remoteIp + ', ' + data.login);
 		return {
-			displayData: (serverConfig.tcpDisplayHost || localIp) + ':' + serverConfig.tcpPort,
+			displayHost: serverConfig.tcpDisplayHost || localIp || null,
+			displayPort: serverConfig.tcpPort,
 			bindTime: serverConfig.maxBindTime
 		};
 	} else {
@@ -98,11 +92,6 @@ var checkClientAndMakeBinding = function(data, remoteIp, localIp) {
 	}
 };
 
-var makeBinding = function (remoteIp, client) {
-	// removing old bindings
-	bindings = bindings.filter(function (e) { return e.login != client.login; });
-	bindings.push({ ip: remoteIp, date: new Date(), connectionCount: 0, client: client });
-};
 
 var getSalt = function(remoteIp) {
 	var salt = crypto.pseudoRandomBytes(15).toString('base64');
@@ -110,7 +99,19 @@ var getSalt = function(remoteIp) {
 	return salt;
 };
 
-refreshClients();
+var _calcHash = function (p, s) {
+	var r = p + s;
+	var hash = crypto.createHash('sha256');
+	hash.update(r);
+	return hash.digest('hex');
+};
+var _makeBinding = function (remoteIp, client) {
+	// removing old bindings
+	bindings = bindings.filter(function (e) { return e.login != client.login; });
+	bindings.push({ ip: remoteIp, date: new Date(), connectionCount: 0, client: client });
+};
+
+_refreshClients();
 module.exports = {
 	getBinding: getBinding,
 	checkClientAndMakeBinding: checkClientAndMakeBinding,

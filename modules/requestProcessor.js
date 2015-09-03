@@ -7,7 +7,6 @@ var fs = require('fs');
 var mime = require('mime');
 var http = require('http');
 var url = require('url');
-var fs = require('fs');
 var configReader = require('./configReader.js');
 
 var config = configReader('server', {
