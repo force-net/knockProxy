@@ -37,15 +37,17 @@ var _refreshClients = function () {
 var getBinding = function (remoteIp) {
 	var clientByIp = clients.first(function (e) { return !e.login && e.sourceIp && e.sourceIp == remoteIp; });
 	if (clientByIp) {
-		return { host: clientByIp.targetHost, port: clientByIp.targetPort, login: clientByIp.sourceIp };
+		return { host: clientByIp.targetHost, port: clientByIp.targetPort, login: clientByIp.sourceIp, client: clientByIp };
 	}
 
 	var now = new Date();
 	// filtering only valid
-	bindings = bindings.filter(function(b) {
-		if (b.connectionCount >= serverConfig.maxReconnectCount)
+	bindings = bindings.filter(function (b) {
+		var maxReconnectCount = b.client.maxReconnectCount || serverConfig.maxReconnectCount;
+		var maxBindTime = b.client.maxBindTime || serverConfig.maxBindTime;
+		if (b.connectionCount >= maxReconnectCount)
 			return false;
-		if (now - b.date > serverConfig.maxBindTime * 1000)
+		if (now - b.date > maxBindTime * 1000)
 			return false;
 		return true;
 	});
@@ -54,7 +56,7 @@ var getBinding = function (remoteIp) {
 
 	if (found != null) {
 		found.connectionCount++;
-		return { host: found.client.targetHost, port: found.client.targetPort, login: found.client.login };
+		return { host: found.client.targetHost, port: found.client.targetPort, login: found.client.login, client: found.client };
 	}
 
 	return null;
@@ -84,7 +86,7 @@ var checkClientAndMakeBinding = function(data, remoteIp, localIp) {
 		return {
 			displayHost: serverConfig.tcpDisplayHost || localIp || null,
 			displayPort: serverConfig.tcpPort,
-			bindTime: serverConfig.maxBindTime
+			bindTime: client.maxBindTime || serverConfig.maxBindTime
 		};
 	} else {
 		logger.warn('Invalid login/password for ' + remoteIp + ', ' + (data.login || '(empty login)'));

@@ -41,18 +41,16 @@ var _processRequest = function (query, request, response) {
 		response.writeHead(200, { 'Content-Type': 'application/json' });
 		response.write(JSON.stringify({ isSuccess: result != null, binding: result }));
 		response.end();
-	}
-	
-	if (postData.action == 'salt') {
+	} else if (postData.action == 'salt') {
 		var salt = clientBinder.getSalt(_getUserHost(request));
 		response.writeHead(200, { 'Content-Type': 'application/json' });
 		response.write(JSON.stringify({ salt: salt }));
 		response.end();
+	} else {
+		response.writeHead(500, { 'Content-Type': 'text/html' });
+		response.write('<html>500</html>');
+		response.end();
 	}
-
-	response.writeHead(500, { 'Content-Type': 'text/html' });
-	response.write('<html>500</html>');
-	response.end();
 };
 
 module.exports = {

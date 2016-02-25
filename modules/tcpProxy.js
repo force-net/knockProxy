@@ -2,7 +2,7 @@
 var net = require('net');
 var clientBinder = require('./clientBinder.js');
 
-var serverConfig = configReader('server', { tcpPort: 8222, onlyOneConnection: true });
+var serverConfig = configReader('server', { tcpPort: 8222, connectionLimit: 1 });
 
 var logger = require('./logHelper.js').getLogger('proxy');
 
@@ -16,37 +16,45 @@ var server = net.createServer(function (remoteClient) { //'connection' listener
 	var binding = clientBinder.getBinding(remoteIp);
 	var client = null;
 	var logBindingSuffix = (binding == null ? '' : ' (' + binding.login + ')');
-	logger.info('Client connected: ' + remoteIp + logBindingSuffix);
+	logger.info('Client has connected: ' + remoteIp + logBindingSuffix);
 
 	var logDisconnected = function () {
 		logDisconnected = noop;
-		logger.info('Client disconnected: ' + remoteIp + logBindingSuffix);
+		logger.info('Client has disconnected: ' + remoteIp + logBindingSuffix);
 	};
 
 	remoteClient.on('error', noop);
-	remoteClient.on('close', function () { client && client.destroy(); logDisconnected(); });
+	remoteClient.on('close', function () { client && client.end(); logDisconnected(); });
 
 	if (binding == null) {
 		logger.warn('No binding for client: ' + remoteIp);
 		remoteClient.destroy();
 	} else {
-		if (serverConfig.onlyOneConnection && currentConnections[remoteIp]) {
-			logger.warn('Client already connected. Blocking ' + logBindingSuffix);
-			remoteClient.destroy();
-		} else {
-			currentConnections[remoteIp] = 1;
-
-			client = net.createConnection(binding, function() { //'connect' listener
-				logger.info('Created pipe: ' + remoteIp + ' <-> ' + binding.host + ':' + binding.port + logBindingSuffix);
-				client.pipe(remoteClient).pipe(client);
-			});
-			client.on('error', noop);
-			client.on('close', function () {
-				delete currentConnections[remoteIp];
+		var connectionLimit = binding.client.connectionLimit || serverConfig.connectionLimit;
+		if (connectionLimit > 0) {
+			if (currentConnections[remoteIp] && currentConnections[remoteIp] >= connectionLimit) {
+				logger.warn('Client is connected already. Blocking ' + logBindingSuffix);
 				remoteClient.destroy();
-				logDisconnected();
-			});
+				return;
+			}
+			
+			currentConnections[remoteIp] = (currentConnections[remoteIp] || 0) + 1;
 		}
+		
+		client = net.createConnection(binding, function () { //'connect' listener
+			logger.info('Pipe is created: ' + remoteIp + ' <-> ' + binding.host + ':' + binding.port + logBindingSuffix);
+			client.pipe(remoteClient).pipe(client);
+		});
+		client.on('error', noop);
+		client.on('close', function () {
+			if (currentConnections[remoteIp]) {
+				if (!--currentConnections[remoteIp])
+					delete currentConnections[remoteIp];
+			}
+			
+			remoteClient.end();
+			logDisconnected();
+		});
 	}
 });
 
