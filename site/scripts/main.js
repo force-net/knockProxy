@@ -67,6 +67,7 @@
 			}
 		});
 
+		$('#tbLogin').focus();
 		$('#btnLogin').on('click', o.m1);
 
 		var doRequest = function(data, success, error) {
